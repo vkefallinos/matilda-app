@@ -12,7 +12,7 @@ export async function middleware(req: NextRequest) {
   // Apply rate limiting
   try {
     const ip = req.ip ?? '127.0.0.1'
-    await limiter.check(5, ip) // 5 requests per minute per IP
+    await limiter.check(30, ip) // 5 requests per minute per IP
   } catch {
     return new NextResponse('Too Many Requests', {
       status: 429,
