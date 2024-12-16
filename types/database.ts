@@ -17,6 +17,7 @@ export interface Classroom {
   teacher_id: string
   created_at: string
   updated_at: string
+  student_count?: number
 }
 
 export interface Student {
@@ -65,6 +66,41 @@ export interface ClassroomSettings {
   updated_at: string
 }
 
+export interface Quiz {
+  id: string
+  title: string
+  description?: string
+  lesson_plan_id: string
+  total_points: number
+  duration_minutes: number
+  questions: {
+    id: string
+    question: string
+    type: 'multiple_choice' | 'short_answer' | 'true_false'
+    options?: string[]
+    correct_answer: string
+    points: number
+  }[]
+  assigned_student_ids?: string[]
+  due_date?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface Worksheet {
+  id: string
+  title: string
+  description?: string
+  content: string
+  lesson_plan_id: string
+  assigned_student_ids?: string[]
+  due_date?: string
+  difficulty_level: 'easy' | 'medium' | 'hard'
+  estimated_time_minutes: number
+  created_at: string
+  updated_at: string
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -97,6 +133,16 @@ export interface Database {
         Row: ClassroomSettings
         Insert: Omit<ClassroomSettings, 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Omit<ClassroomSettings, 'id' | 'classroom_id' | 'created_at' | 'updated_at'>>
+      }
+      quizzes: {
+        Row: Quiz
+        Insert: Omit<Quiz, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Quiz, 'id' | 'lesson_plan_id' | 'created_at' | 'updated_at'>>
+      }
+      worksheets: {
+        Row: Worksheet
+        Insert: Omit<Worksheet, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Worksheet, 'id' | 'lesson_plan_id' | 'created_at' | 'updated_at'>>
       }
     }
   }

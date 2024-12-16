@@ -87,7 +87,7 @@ export default function ClassroomView() {
             </div>
             {/* Student count and quick stats */}
             <div className="text-gray-600">
-              {classroom.students?.length || 0} students enrolled
+              {classroom.student_count || 0} students enrolled
             </div>
           </div>
 

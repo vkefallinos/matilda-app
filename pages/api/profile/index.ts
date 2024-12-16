@@ -1,71 +1,61 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { createPagesServerClient } from '@supabase/auth-helpers-nextjs'
+import type { NextApiRequest, NextApiResponse } from 'next'
+import { updateProfileSchema } from '@/schemas/zod/profile'
 
-export const dynamic = 'force-dynamic'
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const supabase = createPagesServerClient({ req, res })
 
-export async function GET(request: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
-    
     const {
-      data: { session },
-    } = await supabase.auth.getSession()
+      data: { user },
+    } = await supabase.auth.getUser()
 
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' })
     }
 
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', session.user.id)
-      .single()
+    switch (req.method) {
+      case 'GET':
+        const { data: profile, error: getError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single()
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+        if (getError) {
+          return res.status(500).json({ error: getError.message })
+        }
+
+        return res.status(200).json(profile)
+
+      case 'PUT':
+        const validationResult = updateProfileSchema.safeParse(req.body)
+
+        if (!validationResult.success) {
+          return res.status(400).json({ error: validationResult.error.errors })
+        }
+
+        const { data: updatedProfile, error: updateError } = await supabase
+          .from('profiles')
+          .update(validationResult.data)
+          .eq('id', user.id)
+          .select()
+          .single()
+
+        if (updateError) {
+          return res.status(500).json({ error: updateError.message })
+        }
+
+        return res.status(200).json(updatedProfile)
+
+      default:
+        return res.status(405).json({ error: 'Method not allowed' })
     }
-
-    return NextResponse.json(profile)
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
-  }
-}
-
-export async function PUT(request: NextRequest) {
-  try {
-    const supabase = createRouteHandlerClient({ cookies })
-    
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const data = await request.json()
-
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .update(data)
-      .eq('id', session.user.id)
-      .select()
-      .single()
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
-    }
-
-    return NextResponse.json(profile)
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    console.error('Error:', error)
+    return res.status(500).json({ error: 'Internal Server Error' })
   }
 }

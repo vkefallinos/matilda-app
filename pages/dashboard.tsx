@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
 import Layout from '../components/Layout'
-import { Database } from '../types/supabase'
+import { Database } from '../types/database'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
 

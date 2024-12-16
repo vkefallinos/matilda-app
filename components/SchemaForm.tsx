@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import Form from '@rjsf/core'
+import Form, { IChangeEvent } from '@rjsf/core'
 import { RJSFSchema, UiSchema } from '@rjsf/utils'
 import validator from '@rjsf/validator-ajv8'
 
@@ -11,6 +11,7 @@ interface SchemaFormProps {
   onError?: (errors: any[]) => void
   submitText?: string
   loading?: boolean
+  className?: string
 }
 
 export default function SchemaForm({
@@ -21,10 +22,13 @@ export default function SchemaForm({
   onError,
   submitText = 'Submit',
   loading = false,
+  className,
 }: SchemaFormProps) {
   const handleSubmit = useCallback(
-    ({ formData }: { formData: any }) => {
-      onSubmit(formData)
+    (data: IChangeEvent<any, any, any>) => {
+      if (data.formData) {
+        onSubmit(data.formData)
+      }
     },
     [onSubmit]
   )
@@ -54,7 +58,7 @@ export default function SchemaForm({
       formData={formData}
       onSubmit={handleSubmit}
       onError={handleError}
-      className="rjsf-form"
+      className={className || "rjsf-form"}
     />
   )
 }

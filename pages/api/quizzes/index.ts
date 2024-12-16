@@ -1,6 +1,6 @@
 import { createPagesServerClient } from '@supabase/auth-helpers-nextjs'
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { createQuizSchema } from '@/schemas/zod/quiz'
+import { createQuizSchema, questionSchema, type Question } from '@/schemas/zod/quiz'
 
 export default async function handler(
   req: NextApiRequest,
@@ -28,7 +28,7 @@ export default async function handler(
       const { questions, ...quizDetails } = quizData
 
       // Calculate total points from questions
-      const total_points = questions?.reduce((sum, q) => sum + q.points, 0) || 0
+      const total_points = questions?.reduce((sum: number, q: Question) => sum + q.points, 0) || 0
 
       // Validate quiz data
       const validationResult = createQuizSchema.safeParse({
@@ -94,7 +94,7 @@ export default async function handler(
 
       // Create student assignments if any students are assigned
       if (assigned_student_ids && assigned_student_ids.length > 0) {
-        const assignments = assigned_student_ids.map(studentId => ({
+        const assignments = assigned_student_ids.map((studentId: string) => ({
           student_id: studentId,
           quiz_id: quiz.id,
           status: 'assigned'

@@ -1,33 +1,36 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { createPagesServerClient } from '@supabase/auth-helpers-nextjs'
+import type { NextApiRequest, NextApiResponse } from 'next'
 
-export const dynamic = 'force-dynamic'
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' })
+  }
 
-export async function POST(request: NextRequest) {
+  const supabase = createPagesServerClient({ req, res })
+
   try {
-    const supabase = createRouteHandlerClient({ cookies })
-    
     const {
-      data: { session },
-    } = await supabase.auth.getSession()
+      data: { user },
+    } = await supabase.auth.getUser()
 
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' })
     }
 
-    const formData = await request.formData()
-    const file = formData.get('file') as File
+    const formData = await req.body.get('file')
+    const file = formData as File
     if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 })
+      return res.status(400).json({ error: 'No file provided' })
     }
 
     // Delete old avatar if exists
     const { data: profile } = await supabase
       .from('profiles')
       .select('avatar_url')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .single()
 
     if (profile?.avatar_url) {
@@ -41,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     // Upload new avatar
     const fileExt = file.name.split('.').pop()
-    const fileName = `${session.user.id}-${Math.random()}.${fileExt}`
+    const fileName = `${user.id}-${Math.random()}.${fileExt}`
     const filePath = `avatars/${fileName}`
 
     const { error: uploadError } = await supabase.storage
@@ -49,7 +52,7 @@ export async function POST(request: NextRequest) {
       .upload(filePath, file)
 
     if (uploadError) {
-      return NextResponse.json({ error: uploadError.message }, { status: 400 })
+      return res.status(400).json({ error: uploadError.message })
     }
 
     const { data: { publicUrl } } = supabase.storage
@@ -59,17 +62,15 @@ export async function POST(request: NextRequest) {
     const { error: updateError } = await supabase
       .from('profiles')
       .update({ avatar_url: publicUrl })
-      .eq('id', session.user.id)
+      .eq('id', user.id)
 
     if (updateError) {
-      return NextResponse.json({ error: updateError.message }, { status: 400 })
+      return res.status(400).json({ error: updateError.message })
     }
 
-    return NextResponse.json({ url: publicUrl })
+    return res.status(200).json({ url: publicUrl })
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    console.error('Error:', error)
+    return res.status(500).json({ error: 'Internal Server Error' })
   }
 }

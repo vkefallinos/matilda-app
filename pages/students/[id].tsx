@@ -67,7 +67,7 @@ export default function StudentDetail() {
 
   const handleSubmit = async ({ formData }: { formData: any }) => {
     try {
-      const updatedStudent = await updateStudent(id as string, formData)
+      const updatedStudent = await updateStudent(id as string, formData, student?.classroom_id as string)
       setStudent(updatedStudent)
       router.push(`/classrooms/${student?.classroom_id}/students`)
     } catch (err) {

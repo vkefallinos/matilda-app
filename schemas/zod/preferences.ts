@@ -2,17 +2,20 @@ import { z } from 'zod';
 
 // Base schema for teacher preferences
 export const teacherPreferencesSchema = z.object({
+  id: z.string().uuid().optional(),
   teacher_id: z.string().uuid('Invalid teacher ID'),
-  preferences: z.record(z.unknown()).default({}),
+  preferences: z.record(z.any()),
+  created_at: z.string().datetime().optional(),
+  updated_at: z.string().datetime().optional(),
 });
 
 // Schema for creating new preferences
-export const createTeacherPreferencesSchema = teacherPreferencesSchema.omit({ 
-  created_at: true,
-  updated_at: true,
+export const createTeacherPreferencesSchema = z.object({
+  teacher_id: z.string().uuid('Invalid teacher ID'),
+  preferences: z.record(z.any()),
 });
 
-// Schema for updating existing preferences
+// Schema for updating preferences
 export const updateTeacherPreferencesSchema = createTeacherPreferencesSchema.partial();
 
 // Schema for preferences with database fields
@@ -24,17 +27,20 @@ export const dbTeacherPreferencesSchema = teacherPreferencesSchema.extend({
 
 // Base schema for classroom settings
 export const classroomSettingsSchema = z.object({
+  id: z.string().uuid().optional(),
   classroom_id: z.string().uuid('Invalid classroom ID'),
-  settings: z.record(z.unknown()).default({}),
+  settings: z.record(z.any()),
+  created_at: z.string().datetime().optional(),
+  updated_at: z.string().datetime().optional(),
 });
 
 // Schema for creating new settings
-export const createClassroomSettingsSchema = classroomSettingsSchema.omit({ 
-  created_at: true,
-  updated_at: true,
+export const createClassroomSettingsSchema = z.object({
+  classroom_id: z.string().uuid('Invalid classroom ID'),
+  settings: z.record(z.any()),
 });
 
-// Schema for updating existing settings
+// Schema for updating settings
 export const updateClassroomSettingsSchema = createClassroomSettingsSchema.partial();
 
 // Schema for settings with database fields
