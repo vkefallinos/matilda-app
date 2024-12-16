@@ -1,0 +1,86 @@
+/* Form container */
+.rjsf-form {
+  @apply max-w-4xl mx-auto;
+}
+
+/* Field containers */
+.rjsf-form .form-group {
+  @apply mb-6;
+}
+
+/* Field labels */
+.rjsf-form .control-label {
+  @apply block text-gray-700 text-sm font-bold mb-2;
+}
+
+/* Required field indicator */
+.rjsf-form .required {
+  @apply text-error ml-1;
+}
+
+/* Text inputs */
+.rjsf-form input[type="text"],
+.rjsf-form input[type="number"],
+.rjsf-form input[type="email"],
+.rjsf-form input[type="date"],
+.rjsf-form textarea {
+  @apply form-input;
+}
+
+/* Select inputs */
+.rjsf-form select {
+  @apply form-input;
+}
+
+/* Checkboxes */
+.rjsf-form .checkbox input[type="checkbox"] {
+  @apply mr-2;
+}
+
+.rjsf-form .checkbox label {
+  @apply text-gray-700;
+}
+
+/* Array fields */
+.rjsf-form .array-item {
+  @apply mb-4;
+}
+
+.rjsf-form .array-item-toolbox {
+  @apply flex justify-end space-x-2 mt-2;
+}
+
+/* Array field buttons */
+.rjsf-form .btn-add {
+  @apply btn-secondary text-sm;
+}
+
+.rjsf-form .array-item-move-up,
+.rjsf-form .array-item-move-down,
+.rjsf-form .array-item-remove {
+  @apply px-2 py-1 text-sm rounded-md bg-gray-200 hover:bg-gray-300 transition-colors;
+}
+
+/* Error messages */
+.rjsf-form .error-detail {
+  @apply text-error text-sm mt-1;
+}
+
+/* Field descriptions */
+.rjsf-form .field-description {
+  @apply text-gray-600 text-sm mt-1;
+}
+
+/* Object fields */
+.rjsf-form fieldset {
+  @apply border border-gray-200 rounded-md p-4 mb-4;
+}
+
+.rjsf-form legend {
+  @apply text-lg font-semibold mb-2 px-2;
+}
+
+/* Submit button container */
+.rjsf-form .form-buttons {
+  @apply mt-6;
+}
